@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "net.sprocketgames.betterphantoms.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+
+  ],
+  "mixins": [
+    "PhantomAIMixin",
+    "PhantomSpawnerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
