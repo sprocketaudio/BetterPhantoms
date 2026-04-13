@@ -1,7 +1,7 @@
 package net.sprocketgames.betterphantoms;
 
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -204,10 +204,23 @@ public final class EndPhantomBehaviorController {
     }
 
     private static ServerPlayer findDetectionTarget(ServerLevel level, Phantom phantom) {
-        return level.players().stream()
-                .filter(player -> isValidDetectionTarget(level, phantom, player))
-                .min(Comparator.comparingDouble(player -> horizontalDistanceSqr(phantom, player)))
-                .orElse(null);
+        List<ServerPlayer> players = level.players();
+        ServerPlayer closest = null;
+        double closestDist = Double.MAX_VALUE;
+
+        for (ServerPlayer player : players) {
+            if (!isValidDetectionTarget(level, phantom, player)) {
+                continue;
+            }
+
+            double dist = horizontalDistanceSqr(phantom, player);
+            if (dist < closestDist) {
+                closestDist = dist;
+                closest = player;
+            }
+        }
+
+        return closest;
     }
 
     private static void progressExposure(PhantomState state, UUID candidate) {

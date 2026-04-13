@@ -26,6 +26,7 @@ public class BetterPhantomsMod {
         NeoForge.EVENT_BUS.addListener(EndPhantomBehaviorController::onEntityLeaveLevel);
         NeoForge.EVENT_BUS.addListener(DragonFightPhantomManager::onServerTickPost);
         NeoForge.EVENT_BUS.addListener(DragonFightPhantomManager::onServerStopped);
+        NeoForge.EVENT_BUS.addListener(EndPhantomSpawnController::onServerStopped);
         NeoForge.EVENT_BUS.addListener(EndPhantomBehaviorController::onServerStopped);
     }
 

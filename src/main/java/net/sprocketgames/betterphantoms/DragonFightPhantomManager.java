@@ -1,7 +1,6 @@
 package net.sprocketgames.betterphantoms;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -92,11 +91,10 @@ public final class DragonFightPhantomManager {
             EndDragonFight fight = level.getDragonFight();
             if (!isDragonFightActive(level, fight)) {
                 state.pendingWaves.clear();
-                pruneTrackedPhantoms(level, state);
-                expireFrenzy(level, state, serverTick);
-                if (state.trackedPhantoms.isEmpty() && state.frenzyExpiryByPhantom.isEmpty()) {
-                    stateIterator.remove();
-                }
+                clearFightTags(level, state);
+                clearFrenzyTags(level, state);
+                state.trackedPhantoms.clear();
+                stateIterator.remove();
                 continue;
             }
 
@@ -187,9 +185,19 @@ public final class DragonFightPhantomManager {
             if (level == null) {
                 continue;
             }
+            clearFightTags(level, entry.getValue());
             clearFrenzyTags(level, entry.getValue());
         }
         STATES.clear();
+    }
+
+    private static void clearFightTags(ServerLevel level, FightState state) {
+        for (UUID uuid : state.trackedPhantoms) {
+            Entity entity = level.getEntity(uuid);
+            if (entity instanceof Phantom phantom && phantom.isAlive()) {
+                phantom.removeTag(FIGHT_PHANTOM_TAG);
+            }
+        }
     }
 
     private static void clearFrenzyTags(ServerLevel level, FightState state) {
@@ -249,11 +257,23 @@ public final class DragonFightPhantomManager {
     }
 
     private static ServerPlayer findNearestTarget(ServerLevel level, Phantom phantom) {
-        return level.players().stream()
-                .filter(player -> !player.isSpectator())
-                .filter(player -> player.distanceToSqr(phantom) <= PHANTOM_TARGET_RADIUS_SQR)
-                .min(Comparator.comparingDouble(player -> player.distanceToSqr(phantom)))
-                .orElse(null);
+        ServerPlayer closest = null;
+        double closestDist = Double.MAX_VALUE;
+        for (ServerPlayer player : level.players()) {
+            if (player.isSpectator()) {
+                continue;
+            }
+
+            double dist = player.distanceToSqr(phantom);
+            if (dist > PHANTOM_TARGET_RADIUS_SQR || dist >= closestDist) {
+                continue;
+            }
+
+            closestDist = dist;
+            closest = player;
+        }
+
+        return closest;
     }
 
     private static void applyFrenzy(ServerLevel level, FightState state, BlockPos crystalPos) {

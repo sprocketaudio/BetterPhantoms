@@ -24,3 +24,10 @@ runs
 run-data
 
 repo
+
+# local-only docs / editor files
+.vscode/
+AGENTS.md
+DESIGN_SPEC.md
+RELEASE_NOTES.md
+VALIDATION_REPORT.md

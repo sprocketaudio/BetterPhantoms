@@ -1,7 +1,12 @@
 package net.sprocketgames.betterphantoms;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -13,6 +18,7 @@ import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 
@@ -28,6 +34,9 @@ public final class EndPhantomSpawnController {
     private static final int ESCORT_HORIZONTAL_OFFSET = 9;
     private static final int ESCORT_VERTICAL_MIN = 3;
     private static final int ESCORT_VERTICAL_RANGE = 6;
+    private static final long END_CITY_CACHE_TTL_TICKS = 200L;
+    private static final int END_CITY_CACHE_MAX_ENTRIES = 4096;
+    private static final Map<ResourceKey<Level>, Map<Long, EndCityCacheEntry>> END_CITY_CACHE = new HashMap<>();
     private static final TagKey<Structure> END_CITY_BONUS_ZONE = TagKey.create(
             Registries.STRUCTURE,
             ResourceLocation.fromNamespaceAndPath(BetterPhantomsMod.MOD_ID, "end_city_bonus_zone")
@@ -162,8 +171,47 @@ public final class EndPhantomSpawnController {
         return Mth.clamp(boosted, 0, SPAWN_WEIGHT_SCALE);
     }
 
-    static boolean isNearEndCity(ServerLevel level, BlockPos pos) {
-        BlockPos nearest = level.findNearestMapStructure(END_CITY_BONUS_ZONE, pos, END_CITY_RADIUS_CHUNKS, true);
-        return nearest != null && nearest.distSqr(pos) <= (long) END_CITY_RADIUS_BLOCKS * END_CITY_RADIUS_BLOCKS;
+    public static void onServerStopped(ServerStoppedEvent event) {
+        END_CITY_CACHE.clear();
     }
+
+    static boolean isNearEndCity(ServerLevel level, BlockPos pos) {
+        long gameTime = level.getGameTime();
+        Map<Long, EndCityCacheEntry> cacheByChunk = END_CITY_CACHE.computeIfAbsent(level.dimension(), key -> new HashMap<>());
+        long chunkKey = ChunkPos.asLong(pos);
+        EndCityCacheEntry cached = cacheByChunk.get(chunkKey);
+        if (cached != null && cached.expiresAtTick >= gameTime) {
+            return cached.nearEndCity;
+        }
+
+        BlockPos nearest = level.findNearestMapStructure(END_CITY_BONUS_ZONE, pos, END_CITY_RADIUS_CHUNKS, true);
+        boolean nearEndCity = nearest != null && nearest.distSqr(pos) <= (long) END_CITY_RADIUS_BLOCKS * END_CITY_RADIUS_BLOCKS;
+        cacheByChunk.put(chunkKey, new EndCityCacheEntry(nearEndCity, gameTime + END_CITY_CACHE_TTL_TICKS));
+        if (cacheByChunk.size() > END_CITY_CACHE_MAX_ENTRIES) {
+            trimCache(cacheByChunk, gameTime);
+        }
+        return nearEndCity;
+    }
+
+    private static void trimCache(Map<Long, EndCityCacheEntry> cacheByChunk, long gameTime) {
+        Iterator<Map.Entry<Long, EndCityCacheEntry>> iterator = cacheByChunk.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Long, EndCityCacheEntry> entry = iterator.next();
+            if (entry.getValue().expiresAtTick < gameTime) {
+                iterator.remove();
+            }
+        }
+
+        if (cacheByChunk.size() <= END_CITY_CACHE_MAX_ENTRIES) {
+            return;
+        }
+
+        Iterator<Long> keyIterator = cacheByChunk.keySet().iterator();
+        while (cacheByChunk.size() > END_CITY_CACHE_MAX_ENTRIES && keyIterator.hasNext()) {
+            keyIterator.next();
+            keyIterator.remove();
+        }
+    }
+
+    private record EndCityCacheEntry(boolean nearEndCity, long expiresAtTick) {}
 }

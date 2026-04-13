@@ -1,43 +1,45 @@
 # Better Phantoms
 
-Better Phantoms is a Minecraft `1.21.1` NeoForge mod that repositions phantoms as an End-focused threat instead of an Overworld insomnia punishment.
+Better Phantoms is a NeoForge mod for Minecraft `1.21.1` that moves phantoms out of the Overworld and turns them into an End-focused threat.
 
-## Project Docs
+## Features
 
-- [Design Specification](./DESIGN_SPEC.md)
-- [Agent Guide (Project-Agnostic NeoForge 1.21.1)](./AGENTS.md)
-- [Release Notes](./RELEASE_NOTES.md)
-- [Validation Report](./VALIDATION_REPORT.md)
+- Disables natural Overworld phantom spawning.
+- Disables insomnia-triggered phantom spawning.
+- Adds crystal-triggered phantom waves during the Ender Dragon fight.
+- Applies a short frenzy to active fight phantoms when the final crystal is destroyed.
+- Enables natural End phantom spawning only after the dragon has been defeated.
+- Increases phantom pressure near End Cities.
+- Keeps Phantom Membrane drops unchanged.
+- Reduces Elytra repair efficiency from Phantom Membrane (configurable).
 
-## Development Setup
+## Requirements
 
-### Requirements
-
+- Minecraft `1.21.1`
+- NeoForge `21.1.x`
 - Java `21`
-- Gradle wrapper included in repo
 
-### Common Commands
+## Configuration
 
-Windows (PowerShell):
+Common config file:
+
+`run/config/betterphantoms-common.toml`
+
+Main options include:
+
+- Overworld spawn disable toggle
+- Insomnia spawn disable toggle
+- Dragon fight wave toggle, size range, cap, and frenzy duration
+- Post-dragon End spawning toggle and weights
+- Patrol altitude and End City dive pressure tuning
+- Elytra repair effectiveness
+
+## Development
+
+PowerShell:
 
 ```powershell
 .\gradlew.bat runClient
 .\gradlew.bat runServer
 .\gradlew.bat build
-.\gradlew.bat runData
 ```
-
-Linux/macOS:
-
-```bash
-./gradlew runClient
-./gradlew runServer
-./gradlew build
-./gradlew runData
-```
-
-## Notes
-
-- The mod targets NeoForge for Minecraft `1.21.1`.
-- Generated data/resources are produced via the `runData` task.
-- Gameplay direction and non-goals are documented in `DESIGN_SPEC.md`.
