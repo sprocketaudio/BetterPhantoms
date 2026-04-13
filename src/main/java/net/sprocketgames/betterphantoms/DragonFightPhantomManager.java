@@ -33,7 +33,9 @@ public final class DragonFightPhantomManager {
     private static final int DRAGON_ARENA_RADIUS = 196;
     private static final int PHANTOM_TARGET_RADIUS_SQR = 160 * 160;
     private static final int PHANTOM_SPAWN_OFFSET = 10;
-    private static final String FIGHT_PHANTOM_TAG = BetterPhantomsMod.MOD_ID + ":dragon_fight_wave";
+    private static final int PHANTOM_SPAWN_MIN_Y_OFFSET = 10;
+    private static final int PHANTOM_SPAWN_Y_RANGE = 8;
+    public static final String FIGHT_PHANTOM_TAG = BetterPhantomsMod.MOD_ID + ":dragon_fight_wave";
     public static final String FRENZY_PHANTOM_TAG = BetterPhantomsMod.MOD_ID + ":dragon_fight_frenzy";
     private static final Map<net.minecraft.resources.ResourceKey<Level>, FightState> STATES = new HashMap<>();
 
@@ -204,6 +206,7 @@ public final class DragonFightPhantomManager {
             Entity entity = level.getEntity(uuid);
             if (entity instanceof Phantom phantom && phantom.isAlive()) {
                 phantom.removeTag(FRENZY_PHANTOM_TAG);
+                phantom.removeEffect(MobEffects.GLOWING);
             }
         }
         state.frenzyExpiryByPhantom.clear();
@@ -231,7 +234,7 @@ public final class DragonFightPhantomManager {
 
         BlockPos spawnPos = origin.offset(
                 Mth.nextInt(level.random, -PHANTOM_SPAWN_OFFSET, PHANTOM_SPAWN_OFFSET),
-                18 + level.random.nextInt(10),
+                PHANTOM_SPAWN_MIN_Y_OFFSET + level.random.nextInt(PHANTOM_SPAWN_Y_RANGE),
                 Mth.nextInt(level.random, -PHANTOM_SPAWN_OFFSET, PHANTOM_SPAWN_OFFSET)
         );
 
@@ -284,6 +287,7 @@ public final class DragonFightPhantomManager {
             Entity entity = level.getEntity(uuid);
             if (entity instanceof Phantom phantom && phantom.isAlive()) {
                 phantom.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, frenzyDurationTicks, 1, false, false, true));
+                phantom.addEffect(new MobEffectInstance(MobEffects.GLOWING, frenzyDurationTicks, 0, false, false, false));
                 phantom.addTag(FRENZY_PHANTOM_TAG);
                 state.frenzyExpiryByPhantom.put(uuid, frenzyExpiresAt);
             }
