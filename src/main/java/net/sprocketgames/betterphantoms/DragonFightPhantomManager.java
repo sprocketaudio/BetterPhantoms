@@ -145,7 +145,7 @@ public final class DragonFightPhantomManager {
         int waveSize = Mth.nextInt(random, min, max);
 
         if (crystalsRemaining <= 4 && random.nextFloat() < 0.5F) {
-            waveSize++;
+            waveSize = Math.min(max, waveSize + 1);
         }
 
         return waveSize;
