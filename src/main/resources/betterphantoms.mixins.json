@@ -7,7 +7,8 @@
 
   ],
   "mixins": [
-    "PhantomAIMixin",
+    "EndDragonFightMixin",
+    "PhantomAccessor",
     "PhantomSpawnerMixin"
   ],
   "injectors": {
