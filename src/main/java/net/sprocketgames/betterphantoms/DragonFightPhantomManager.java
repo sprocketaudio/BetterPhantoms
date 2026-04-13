@@ -83,7 +83,6 @@ public final class DragonFightPhantomManager {
             Map.Entry<net.minecraft.resources.ResourceKey<Level>, FightState> entry = stateIterator.next();
             ServerLevel level = event.getServer().getLevel(entry.getKey());
             if (level == null) {
-                stateIterator.remove();
                 continue;
             }
 
@@ -260,7 +259,7 @@ public final class DragonFightPhantomManager {
         ServerPlayer closest = null;
         double closestDist = Double.MAX_VALUE;
         for (ServerPlayer player : level.players()) {
-            if (player.isSpectator()) {
+            if (player.isSpectator() || player.isCreative()) {
                 continue;
             }
 

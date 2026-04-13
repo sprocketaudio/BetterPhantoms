@@ -9,10 +9,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -319,7 +322,21 @@ public final class EndPhantomBehaviorController {
     }
 
     private static boolean isFrenzied(Phantom phantom) {
-        return phantom.getTags().contains(DragonFightPhantomManager.FRENZY_PHANTOM_TAG);
+        if (!phantom.getTags().contains(DragonFightPhantomManager.FRENZY_PHANTOM_TAG)) {
+            return false;
+        }
+
+        if (!(phantom.level() instanceof ServerLevel level)) {
+            return false;
+        }
+
+        EndDragonFight fight = level.getDragonFight();
+        if (fight == null || fight.getDragonUUID() == null) {
+            return false;
+        }
+
+        Entity dragon = level.getEntity(fight.getDragonUUID());
+        return dragon instanceof EnderDragon enderDragon && enderDragon.isAlive();
     }
 
     private static void applyEndCityDivePressure(Phantom phantom) {
@@ -330,6 +347,11 @@ public final class EndPhantomBehaviorController {
 
         int amplifier = Mth.clamp((int) Math.floor(Math.max(0.0D, bonus - 0.1D) / 0.25D), 0, 4);
         int duration = Mth.clamp((int) Math.round(30 + (bonus * 40.0D)), 20, 100);
+        MobEffectInstance current = phantom.getEffect(MobEffects.MOVEMENT_SPEED);
+        if (current != null && current.getAmplifier() >= amplifier && current.getDuration() > 10) {
+            return;
+        }
+
         phantom.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amplifier, false, false, true));
     }
 
