@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +43,7 @@ public final class DragonFightPhantomManager {
 
     private DragonFightPhantomManager() {}
 
-    public static void onCrystalDestroyed(EndDragonFight fight, EndCrystal crystal) {
+    public static void onCrystalDestroyed(EndDragonFight fight, EndCrystal crystal, @Nullable DamageSource source) {
         if (!Config.enableDragonFightPhantomWaves) {
             return;
         }
@@ -51,6 +53,10 @@ public final class DragonFightPhantomManager {
         }
 
         if (!level.dimension().equals(Level.END) || !isArenaCrystal(crystal.blockPosition())) {
+            return;
+        }
+
+        if (!isPlayerCausedCrystalDestruction(source)) {
             return;
         }
 
@@ -139,6 +145,20 @@ public final class DragonFightPhantomManager {
 
     private static boolean isArenaCrystal(BlockPos crystalPos) {
         return crystalPos.distSqr(BlockPos.ZERO) <= (long) DRAGON_ARENA_RADIUS * DRAGON_ARENA_RADIUS;
+    }
+
+    private static boolean isPlayerCausedCrystalDestruction(@Nullable DamageSource source) {
+        if (source == null) {
+            return false;
+        }
+
+        Entity attacker = source.getEntity();
+        if (attacker instanceof ServerPlayer) {
+            return true;
+        }
+
+        Entity direct = source.getDirectEntity();
+        return direct instanceof ServerPlayer;
     }
 
     private static int getWaveSize(RandomSource random, int crystalsRemaining) {
@@ -246,6 +266,7 @@ public final class DragonFightPhantomManager {
                 0.0F
         );
         phantom.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), MobSpawnType.EVENT, null);
+        EndPhantomSpawnController.applyPhantomHealthTuning(phantom, Config.dragonFightPhantomHealthMultiplier);
         phantom.addTag(FIGHT_PHANTOM_TAG);
 
         ServerPlayer target = findNearestTarget(level, phantom);

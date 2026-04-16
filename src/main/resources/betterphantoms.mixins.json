@@ -9,6 +9,8 @@
   "mixins": [
     "EndDragonFightMixin",
     "PhantomAccessor",
+    "PhantomAttackPlayerTargetGoalMixin",
+    "PhantomAttackStrategyGoalMixin",
     "PhantomSpawnerMixin"
   ],
   "injectors": {

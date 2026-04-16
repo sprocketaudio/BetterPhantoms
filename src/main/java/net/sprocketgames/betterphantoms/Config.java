@@ -43,11 +43,11 @@ public final class Config {
 
     private static final ModConfigSpec.IntValue GENERAL_END_SPAWN_WEIGHT = BUILDER
             .comment("Baseline natural spawn weight for phantoms in the general End.")
-            .defineInRange("generalEndSpawnWeight", 5, 0, 200);
+            .defineInRange("generalEndSpawnWeight", 12, 0, 200);
 
     private static final ModConfigSpec.DoubleValue END_CITY_SPAWN_DENSITY_MULTIPLIER = BUILDER
             .comment("Spawn density multiplier for phantoms near End Cities.")
-            .defineInRange("endCitySpawnDensityMultiplier", 2.0D, 0.0D, 10.0D);
+            .defineInRange("endCitySpawnDensityMultiplier", 1.6D, 0.0D, 10.0D);
 
     private static final ModConfigSpec.IntValue HIGH_PATROL_ALTITUDE = BUILDER
             .comment("Preferred high patrol altitude for End phantoms.")
@@ -55,7 +55,15 @@ public final class Config {
 
     private static final ModConfigSpec.DoubleValue END_CITY_DIVE_SPEED_BONUS = BUILDER
             .comment("Additional dive speed bonus for phantoms near End Cities.")
-            .defineInRange("endCityDiveSpeedBonus", 0.15D, 0.0D, 2.0D);
+            .defineInRange("endCityDiveSpeedBonus", 0.12D, 0.0D, 2.0D);
+
+    private static final ModConfigSpec.DoubleValue PHANTOM_HEALTH_MULTIPLIER = BUILDER
+            .comment("Health multiplier for End phantoms.")
+            .defineInRange("phantomHealthMultiplier", 0.60D, 0.5D, 1.0D);
+
+    private static final ModConfigSpec.DoubleValue DRAGON_FIGHT_PHANTOM_HEALTH_MULTIPLIER = BUILDER
+            .comment("Health multiplier for dragon fight crystal-wave phantoms.")
+            .defineInRange("dragonFightPhantomHealthMultiplier", 0.40D, 0.25D, 1.0D);
 
     private static final ModConfigSpec.DoubleValue ELYTRA_REPAIR_EFFECTIVENESS = BUILDER
             .comment("Repair effectiveness multiplier for Elytra repaired with Phantom Membrane.")
@@ -75,6 +83,8 @@ public final class Config {
     public static double endCitySpawnDensityMultiplier;
     public static int highPatrolAltitude;
     public static double endCityDiveSpeedBonus;
+    public static double phantomHealthMultiplier;
+    public static double dragonFightPhantomHealthMultiplier;
     public static double elytraRepairEffectiveness;
 
     private Config() {}
@@ -97,6 +107,8 @@ public final class Config {
         endCitySpawnDensityMultiplier = END_CITY_SPAWN_DENSITY_MULTIPLIER.get();
         highPatrolAltitude = HIGH_PATROL_ALTITUDE.get();
         endCityDiveSpeedBonus = END_CITY_DIVE_SPEED_BONUS.get();
+        phantomHealthMultiplier = PHANTOM_HEALTH_MULTIPLIER.get();
+        dragonFightPhantomHealthMultiplier = DRAGON_FIGHT_PHANTOM_HEALTH_MULTIPLIER.get();
         elytraRepairEffectiveness = ELYTRA_REPAIR_EFFECTIVENESS.get();
     }
 }

@@ -13,6 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EndDragonFightMixin {
     @Inject(method = "onCrystalDestroyed", at = @At("TAIL"))
     private void betterphantoms$onCrystalDestroyed(EndCrystal crystal, DamageSource source, CallbackInfo ci) {
-        DragonFightPhantomManager.onCrystalDestroyed((EndDragonFight) (Object) this, crystal);
+        DragonFightPhantomManager.onCrystalDestroyed((EndDragonFight) (Object) this, crystal, source);
     }
 }
