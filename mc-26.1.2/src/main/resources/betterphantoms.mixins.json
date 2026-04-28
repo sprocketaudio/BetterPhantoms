@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "net.sprocketgames.betterphantoms.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "minVersion": "0.8",
+  "mixins": [
+    "EnderDragonFightMixin",
+    "PhantomAccessor",
+    "PhantomAttackPlayerTargetGoalMixin",
+    "PhantomAttackStrategyGoalMixin",
+    "PhantomSpawnerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
