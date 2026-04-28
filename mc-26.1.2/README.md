@@ -1,12 +1,30 @@
 
-# Better Phantoms `26.1.2`
+# Better Phantoms
 
-This folder contains the NeoForge `26.1.2` implementation of Better Phantoms.
+This folder contains the Minecraft `26.1.2` / NeoForge `26.1.2` implementation of Better Phantoms.
 
-Typical commands:
+## Target
 
-- `./gradlew build`
-- `./gradlew runClient`
-- `./gradlew runServer`
+- Minecraft `26.1.2`
+- NeoForge `26.1.2.x`
+- Java `25`
 
-Keep `26.1.2` changes here without disturbing the `mc-1.21.1` version.
+## Requirements
+
+- Use this folder for the `26.1.2` release line.
+- Keep changes here version-scoped unless you intentionally backport them.
+
+## Configuration
+
+Common config file:
+
+`run/config/betterphantoms-common.toml`
+
+Main options include:
+
+- Overworld spawn disable toggle
+- Insomnia spawn disable toggle
+- Dragon fight wave toggle, size range, cap, and frenzy duration
+- Post-dragon End spawning toggle and weights
+- Patrol altitude and End City dive pressure tuning
+- Elytra repair effectiveness
